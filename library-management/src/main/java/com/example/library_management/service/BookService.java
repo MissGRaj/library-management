@@ -37,4 +37,29 @@ public class BookService {
         }
         return null;
     }
+
+    public Book updateBook(Long id, Book updatedBook){
+
+        for(Book book : books){
+            if(book.getId().equals(id)){
+                book.setTitle(updatedBook.getTitle());
+                book.setAuthor(updatedBook.getAuthor());
+                return book;
+            }
+        }
+        return null;
+    }
+
+    public Book deleteBook(Long id){
+
+        for(int i=0; i<books.size(); i++){
+            if(books.get(i).getId().equals(id)) {
+                Book deletedBook = books.get(i);
+                books.remove(i);
+                return deletedBook;
+            }
+        }
+
+        return null;
+    }
 }
