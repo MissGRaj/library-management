@@ -1,10 +1,10 @@
 package com.example.library_management.controller;
-
 import com.example.library_management.entity.Book;
 import com.example.library_management.service.BookService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.PublicKey;
 import java.util.List;
 
 @RestController
@@ -22,23 +22,27 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public Book addBooks(@RequestBody Book book){
-        return bookService.addBooks(book);
+    public ResponseEntity<Book> addBook(@RequestBody Book book){
+        Book savedBook = bookService.addBook(book);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
 
     }
 
     @GetMapping("/books/{id}")
-    public Book getById(@PathVariable Long id){
-        return bookService.getById(id);
+    public ResponseEntity<Book> getBookById(@PathVariable Long id){
+        Book book = bookService.getBookById(id);
+        return ResponseEntity.ok(book);
     }
 
     @PutMapping("/books/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book updatedBook){
-        return bookService.updateBook(id, updatedBook);
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book updatedBook){
+        Book book = bookService.updateBook(id, updatedBook);
+        return ResponseEntity.ok(book);
     }
 
     @DeleteMapping("/books/{id}")
-    public Book deleteBook(@PathVariable Long id){
-        return bookService.deleteBook(id);
+    public ResponseEntity<Book> deleteBook(@PathVariable Long id){
+        Book book = bookService.deleteBook(id);
+        return ResponseEntity.ok(book);
     }
 }

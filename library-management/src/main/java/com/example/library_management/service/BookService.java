@@ -1,6 +1,6 @@
 package com.example.library_management.service;
-
 import com.example.library_management.entity.Book;
+import com.example.library_management.exception.BookNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,20 +22,20 @@ public class BookService {
         return books;
     }
 
-    public Book addBooks(Book book){
+    public Book addBook(Book book){
         book.setId(nextId++);
         books.add(book);
         return book;
     }
 
-    public Book getById(Long id){
+    public Book getBookById(Long id){
 
         for(Book book : books){
             if(book.getId().equals(id)){
                 return book;
             }
         }
-        return null;
+        throw new BookNotFoundException("Book Not Found with id " + id);
     }
 
     public Book updateBook(Long id, Book updatedBook){
@@ -47,7 +47,7 @@ public class BookService {
                 return book;
             }
         }
-        return null;
+        throw new BookNotFoundException("Book Not Found with id " + id);
     }
 
     public Book deleteBook(Long id){
@@ -60,6 +60,6 @@ public class BookService {
             }
         }
 
-        return null;
+        throw new BookNotFoundException("Book Not Found With id " + id);
     }
 }
