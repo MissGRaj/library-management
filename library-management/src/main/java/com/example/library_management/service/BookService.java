@@ -9,6 +9,7 @@ import java.util.List;
 @Service
 public class BookService {
     private final List<Book> books = new ArrayList<>();
+    private Long nextId = 3L;
 
     public BookService(){
         books.add(new Book(1L, "Clean Code",
@@ -21,7 +22,19 @@ public class BookService {
         return books;
     }
 
-    public void addBooks(Book book){
+    public Book addBooks(Book book){
+        book.setId(nextId++);
         books.add(book);
+        return book;
+    }
+
+    public Book getById(Long id){
+
+        for(Book book : books){
+            if(book.getId().equals(id)){
+                return book;
+            }
+        }
+        return null;
     }
 }
