@@ -1,65 +1,71 @@
 package com.example.library_management.service;
+import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.exception.BookNotFoundException;
+import com.example.library_management.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class BookService {
-    private final List<Book> books = new ArrayList<>();
-    private Long nextId = 3L;
+    private final BookRepository bookRepository;
 
-    public BookService(){
-        books.add(new Book(1L, "Clean Code",
-                "Robert C. Martin"));
-        books.add(new Book(2L, "Effective Java",
-                "Joshua Bloch"));
+    public BookService(BookRepository bookRepository){
+        this.bookRepository = bookRepository;
     }
 
     public List<Book> getBooks(){
-        return books;
+
+        return bookRepository.findAll();
     }
 
     public Book addBook(Book book){
-        book.setId(nextId++);
-        books.add(book);
-        return book;
+        return bookRepository.save(book);
     }
 
-    public Book getBookById(Long id){
+    public BookResponse getBookById(Long id){
 
-        for(Book book : books){
-            if(book.getId().equals(id)){
-                return book;
-            }
-        }
-        throw new BookNotFoundException("Book Not Found with id " + id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() ->
+                        new BookNotFoundException("Book Not Found with id " + id));
+        return new BookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor()
+        );
     }
 
     public Book updateBook(Long id, Book updatedBook){
 
-        for(Book book : books){
-            if(book.getId().equals(id)){
-                book.setTitle(updatedBook.getTitle());
-                book.setAuthor(updatedBook.getAuthor());
-                return book;
-            }
-        }
-        throw new BookNotFoundException("Book Not Found with id " + id);
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() ->
+                        new BookNotFoundException("Book Not Found with id " + id));
+        existingBook.setTitle(updatedBook.getTitle());
+        existingBook.setAuthor(updatedBook.getAuthor());
+        return bookRepository.save(existingBook);
+
     }
 
     public Book deleteBook(Long id){
 
-        for(int i=0; i<books.size(); i++){
-            if(books.get(i).getId().equals(id)) {
-                Book deletedBook = books.get(i);
-                books.remove(i);
-                return deletedBook;
-            }
-        }
-
-        throw new BookNotFoundException("Book Not Found With id " + id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(()
+                -> new BookNotFoundException("Book Not Found With id " + id));
+        bookRepository.deleteById(id);
+        return book;
     }
+
+    public List<Book> searchBooksByAuthor(String author){
+        return bookRepository.findByAuthor(author);
+    }
+
+    public List<Book> searchBooksByTitleIgnoreCase(String title){
+        return bookRepository.findByTitleContainingIgnoreCase(title);
+    }
+
+    public List<Book> searchBooksByAuthorAndTitleIgnoreCase(String author, String title){
+        return bookRepository.findByAuthorAndTitleContainingIgnoreCase(author, title);
+    }
+
 }

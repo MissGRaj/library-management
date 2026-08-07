@@ -1,6 +1,8 @@
 package com.example.library_management.controller;
+import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +24,19 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public ResponseEntity<Book> addBook(@RequestBody Book book){
+    public ResponseEntity<Book> addBook(@Valid @RequestBody Book book){
         Book savedBook = bookService.addBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
 
     }
 
     @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id){
-        Book book = bookService.getBookById(id);
-        return ResponseEntity.ok(book);
+    public ResponseEntity<BookResponse> getBookById(@PathVariable Long id){
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
     @PutMapping("/books/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book updatedBook){
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @Valid @RequestBody Book updatedBook){
         Book book = bookService.updateBook(id, updatedBook);
         return ResponseEntity.ok(book);
     }
@@ -45,4 +46,22 @@ public class BookController {
         Book book = bookService.deleteBook(id);
         return ResponseEntity.ok(book);
     }
+
+    @GetMapping("/books/search")
+    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) String author,
+                                                  @RequestParam(required = false) String title){
+        if(author != null && title != null){
+            return ResponseEntity.ok(bookService.searchBooksByAuthorAndTitleIgnoreCase(author, title));
+        }
+
+        if(author != null) {
+            return ResponseEntity.ok(bookService.searchBooksByAuthor(author));
+        }
+
+        if(title != null) {
+            return ResponseEntity.ok(bookService.searchBooksByTitleIgnoreCase(title));
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
 }
