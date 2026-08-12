@@ -3,6 +3,8 @@ import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.exception.BookNotFoundException;
 import com.example.library_management.repository.BookRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,16 +58,35 @@ public class BookService {
         return book;
     }
 
-    public List<Book> searchBooksByAuthor(String author){
-        return bookRepository.findByAuthor(author);
+    public Page<Book> searchBooksByAuthor(String author, Pageable pageable){
+        return bookRepository.findByAuthor(author, pageable);
     }
 
-    public List<Book> searchBooksByTitleIgnoreCase(String title){
-        return bookRepository.findByTitleContainingIgnoreCase(title);
+    public Page<Book> searchBooksByTitleIgnoreCase(String title, Pageable pageable){
+        return bookRepository.findByTitleContainingIgnoreCase(title, pageable);
     }
 
-    public List<Book> searchBooksByAuthorAndTitleIgnoreCase(String author, String title){
-        return bookRepository.findByAuthorAndTitleContainingIgnoreCase(author, title);
+    public Page<Book> searchBooksByAuthorAndTitleIgnoreCase(
+            String author,
+            String title,
+            Pageable pageable){
+        return bookRepository.findByAuthorAndTitleContainingIgnoreCase(
+                author,
+                title,
+                pageable);
     }
 
+//    jpql
+    public List<Book> searchBooksByAuthorJPQL(String author){
+        return bookRepository.findBooksByAuthorJPQL(author);
+    }
+
+    public List<Book> searchBooksJPQL(String author, String title){
+        return bookRepository.findBooksJPQL(author, title);
+    }
+
+//    pagination
+    public Page<Book> searchBooks(Pageable pageable){
+        return bookRepository.findAll(pageable);
+    }
 }
