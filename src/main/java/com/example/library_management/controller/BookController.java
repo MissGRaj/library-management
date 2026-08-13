@@ -1,4 +1,5 @@
 package com.example.library_management.controller;
+import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.service.BookService;
@@ -53,42 +54,9 @@ public class BookController {
 
     @GetMapping("/books/search")
     public ResponseEntity<Page<Book>> searchBooks(
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String title,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "title") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction){
+            BookSearchRequest request){
 
-        Sort sort = direction.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                sort);
-
-        if(author != null && title != null){
-            return ResponseEntity.ok(
-                    bookService.searchBooksByAuthorAndTitleIgnoreCase(
-                            author,
-                            title,
-                            pageable));
-        }
-
-        if(author != null) {
-            return ResponseEntity.ok(bookService.searchBooksByAuthor(
-                    author,
-                    pageable));
-        }
-
-        if(title != null) {
-            return ResponseEntity.ok(bookService.searchBooksByTitleIgnoreCase(
-                    title,
-                    pageable));
-        }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(bookService.searchBooks(request));
     }
 
 //    jpql endpoints

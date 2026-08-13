@@ -1,10 +1,14 @@
 package com.example.library_management.service;
+import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.exception.BookNotFoundException;
 import com.example.library_management.repository.BookRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,22 +62,37 @@ public class BookService {
         return book;
     }
 
-    public Page<Book> searchBooksByAuthor(String author, Pageable pageable){
-        return bookRepository.findByAuthor(author, pageable);
-    }
 
-    public Page<Book> searchBooksByTitleIgnoreCase(String title, Pageable pageable){
-        return bookRepository.findByTitleContainingIgnoreCase(title, pageable);
-    }
+    public Page<Book> searchBooks(BookSearchRequest request){
 
-    public Page<Book> searchBooksByAuthorAndTitleIgnoreCase(
-            String author,
-            String title,
-            Pageable pageable){
-        return bookRepository.findByAuthorAndTitleContainingIgnoreCase(
-                author,
-                title,
-                pageable);
+        Sort sort = request.getDirection().equalsIgnoreCase("desc")
+                ? Sort.by(request.getSortBy()).descending()
+                : Sort.by(request.getSortBy()).ascending();
+
+        Pageable pageable = PageRequest.of(
+                request.getPage(),
+                request.getSize(),
+                sort);
+
+        if(request.getAuthor() != null && request.getTitle() != null){
+            return bookRepository.findByAuthorAndTitleContainingIgnoreCase(
+                            request.getAuthor(),
+                            request.getTitle(),
+                            pageable);
+        }
+
+        if(request.getAuthor() != null) {
+            return bookRepository.findByAuthor(
+                    request.getAuthor(),
+                    pageable);
+        }
+
+        if(request.getTitle() != null) {
+            return bookRepository.findByTitleContainingIgnoreCase(
+                    request.getTitle(),
+                    pageable);
+        }
+        return bookRepository.findAll(pageable);
     }
 
 //    jpql
