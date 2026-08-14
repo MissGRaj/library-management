@@ -1,4 +1,5 @@
 package com.example.library_management.service;
+import com.example.library_management.dto.request.BookRequest;
 import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
@@ -18,6 +19,7 @@ public class BookService {
     private final BookRepository bookRepository;
 
     public BookService(BookRepository bookRepository){
+
         this.bookRepository = bookRepository;
     }
 
@@ -26,7 +28,11 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Book addBook(Book book){
+    public Book addBook(BookRequest request){
+
+        Book book = new Book();
+        book.setAuthor(request.getAuthor());
+        book.setTitle(request.getTitle());
         return bookRepository.save(book);
     }
 

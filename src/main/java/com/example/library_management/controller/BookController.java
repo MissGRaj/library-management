@@ -1,4 +1,5 @@
 package com.example.library_management.controller;
+import com.example.library_management.dto.request.BookRequest;
 import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
@@ -29,8 +30,8 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public ResponseEntity<Book> addBook(@Valid @RequestBody Book book){
-        Book savedBook = bookService.addBook(book);
+    public ResponseEntity<Book> addBook(@Valid @RequestBody BookRequest request){
+        Book savedBook = bookService.addBook(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
 
     }

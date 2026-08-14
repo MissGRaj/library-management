@@ -13,12 +13,7 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Title cannot be empty")
-    @Size(max = 100, message = "Title cannot exceed 100 characters")
     private String title;
-
-    @NotBlank(message = "Author cannot be empty")
-    @Size(max = 100, message = "Author cannot exceed 100 characters")
     private String author;
 
     public Book(){
