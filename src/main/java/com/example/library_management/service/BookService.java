@@ -28,12 +28,20 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Book addBook(BookRequest request){
+    public BookResponse addBook(BookRequest request){
 
         Book book = new Book();
         book.setAuthor(request.getAuthor());
         book.setTitle(request.getTitle());
-        return bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+
+        BookResponse bookResponse = new BookResponse();
+
+        bookResponse.setId(savedBook.getId());
+        bookResponse.setTitle(savedBook.getTitle());
+        bookResponse.setAuthor(savedBook.getAuthor());
+
+        return bookResponse;
     }
 
     public BookResponse getBookById(Long id){
@@ -48,24 +56,31 @@ public class BookService {
         );
     }
 
-    public Book updateBook(Long id, Book updatedBook){
+    public BookResponse updateBook(Long id, BookRequest bookRequest){
 
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() ->
                         new BookNotFoundException("Book Not Found with id " + id));
-        existingBook.setTitle(updatedBook.getTitle());
-        existingBook.setAuthor(updatedBook.getAuthor());
-        return bookRepository.save(existingBook);
+        existingBook.setTitle(bookRequest.getTitle());
+        existingBook.setAuthor(bookRequest.getAuthor());
+        Book savedBook = bookRepository.save(existingBook);
+
+        BookResponse bookResponse = new BookResponse();
+
+        bookResponse.setId(savedBook.getId());
+        bookResponse.setTitle(savedBook.getTitle());
+        bookResponse.setAuthor(savedBook.getAuthor());
+
+        return bookResponse;
 
     }
 
-    public Book deleteBook(Long id){
+    public void deleteBook(Long id){
 
         Book book = bookRepository.findById(id)
                 .orElseThrow(()
                 -> new BookNotFoundException("Book Not Found With id " + id));
         bookRepository.deleteById(id);
-        return book;
     }
 
 
