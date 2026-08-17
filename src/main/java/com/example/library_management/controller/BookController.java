@@ -54,9 +54,9 @@ public class BookController {
             @ApiResponse(responseCode = "201", description = "Books added successfully"),
     })
     @PostMapping("/books")
-    public ResponseEntity<Book> addBook(@Valid @RequestBody BookRequest request){
-        Book savedBook = bookService.addBook(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
+    public ResponseEntity<BookResponse> addBook(@Valid @RequestBody BookRequest request){
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.addBook(request));
 
     }
 
@@ -90,15 +90,15 @@ public class BookController {
     })
 
     @PutMapping("/books/{id}")
-    public ResponseEntity<Book> updateBook(
+    public ResponseEntity<BookResponse> updateBook(
             @Parameter(
                     description = "Unique ID of the book",
                     example = "5"
             )
             @PathVariable Long id,
             @Valid @RequestBody BookRequest bookRequest){
-        Book book = bookService.updateBook(id, bookRequest);
-        return ResponseEntity.ok(book);
+
+        return ResponseEntity.ok(bookService.updateBook(id, bookRequest));
     }
 
     @Operation(
@@ -109,14 +109,14 @@ public class BookController {
             @ApiResponse(responseCode = "200", description = "Book deleted successfully")
     })
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<Book> deleteBook(
+    public ResponseEntity<String> deleteBook(
             @Parameter(
                     description = "Unique ID of the book",
                     example = "5"
             )
             @PathVariable Long id){
-        Book book = bookService.deleteBook(id);
-        return ResponseEntity.ok(book);
+        bookService.deleteBook(id);
+        return ResponseEntity.ok().body("Book deleted successfully");
     }
 
     @Operation(
