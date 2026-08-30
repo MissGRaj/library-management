@@ -18,19 +18,19 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> findByAuthorAndTitleContainingIgnoreCase(String author, String title, Pageable pageable);
 
 //    JPQL
-    @Query("""
-            SELECT b
-            FROM Book b
-            WHERE b.author = :author
-            """)
-    List<Book> findBooksByAuthorJPQL(@Param("author") String author);
-
-    @Query("""
-            SELECT b
-            FROM Book b
-            WHERE b.author = :author
-            AND LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))
-            """)
-    List<Book> findBooksJPQL(@Param("author") String author,
-                         @Param("title") String title);
+//    @Query("""
+//            SELECT b
+//            FROM Book b
+//            WHERE b.author = :author
+//            """)
+//    List<Book> findBooksByAuthorJPQL(@Param("author") String author);
+//
+//    @Query("""
+//            SELECT b
+//            FROM Book b
+//            WHERE b.author = :author
+//            AND LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))
+//            """)
+//    List<Book> findBooksJPQL(@Param("author") String author,
+//                         @Param("title") String title);
 }

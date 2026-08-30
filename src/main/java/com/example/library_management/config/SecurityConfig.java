@@ -2,6 +2,8 @@ package com.example.library_management.config;
 
 
 import com.example.library_management.security.JwtAuthenticationFilter;
+import com.example.library_management.security.RestAccessDeniedHandler;
+import com.example.library_management.security.RestAuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,8 +35,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
+//     Use the application's CORS configuration while processing secured requests.
+                .cors(Customizer.withDefaults())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login")
+                        .requestMatchers(
+                                "/auth/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        )
                         .permitAll()
 
                         .requestMatchers(HttpMethod.GET,
@@ -55,19 +65,11 @@ public class SecurityConfig {
 
                 .exceptionHandling(exception -> exception
 
-                        .authenticationEntryPoint(((
-                                request,
-                                response,
-                                authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        }))
+                        .authenticationEntryPoint(
+                                new RestAuthenticationEntryPoint())
 
-                        .accessDeniedHandler(((
-                                request,
-                                response,
-                                accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        }))
+                        .accessDeniedHandler(
+                                new RestAccessDeniedHandler())
 
                 )
 

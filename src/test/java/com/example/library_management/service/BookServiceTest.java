@@ -5,6 +5,7 @@ import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.exception.BookNotFoundException;
+import com.example.library_management.exception.InvalidSortFieldException;
 import com.example.library_management.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -187,8 +188,13 @@ public class BookServiceTest {
         request.setSortBy("title");
         request.setDirection("asc");
 
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+
         Page<Book> expectedPage = new PageImpl<>(
-                List.of(new Book())
+                List.of(book)
         );
 
         when(bookRepository.findByAuthorAndTitleContainingIgnoreCase(
@@ -198,10 +204,12 @@ public class BookServiceTest {
         )).thenReturn(expectedPage);
 
 //        Act
-        Page<Book> result = bookService.searchBooks(request);
+        Page<BookResponse> result = bookService.searchBooks(request);
 
 //        Assert
-        assertEquals(expectedPage, result);
+        assertEquals(1L, result.getContent().get(0).getId());
+        assertEquals("Clean Code", result.getContent().get(0).getTitle());
+        assertEquals("Robert Martin", result.getContent().get(0).getAuthor());
 
 //        Verify
         verify(bookRepository).findByAuthorAndTitleContainingIgnoreCase(
@@ -223,8 +231,13 @@ public class BookServiceTest {
         request.setSortBy("title");
         request.setDirection("asc");
 
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Title");
+        book.setAuthor("Robert Martin");
+
         Page<Book> expectedPage = new PageImpl<>(
-                List.of(new Book())
+                List.of(book)
         );
 
         when(bookRepository.findByAuthor(
@@ -233,10 +246,12 @@ public class BookServiceTest {
         )).thenReturn(expectedPage);
 
 //        Act
-        Page<Book> result = bookService.searchBooks(request);
+        Page<BookResponse> result = bookService.searchBooks(request);
 
 //        Assert
-        assertEquals(expectedPage, result);
+        assertEquals(1L, result.getContent().get(0).getId());
+        assertEquals("Title", result.getContent().get(0).getTitle());
+        assertEquals("Robert Martin", result.getContent().get(0).getAuthor());
 
 //        Verify
         verify(bookRepository).findByAuthor(
@@ -256,8 +271,13 @@ public class BookServiceTest {
         request.setSortBy("title");
         request.setDirection("asc");
 
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+
         Page<Book> expectedPage = new PageImpl<>(
-                List.of(new Book())
+                List.of(book)
         );
 
         when(bookRepository.findByTitleContainingIgnoreCase(
@@ -266,10 +286,12 @@ public class BookServiceTest {
         )).thenReturn(expectedPage);
 
 //        Act
-        Page<Book> result = bookService.searchBooks(request);
+        Page<BookResponse> result = bookService.searchBooks(request);
 
 //        Assert
-        assertEquals(expectedPage, result);
+        assertEquals(1L, result.getContent().get(0).getId());
+        assertEquals("Clean Code", result.getContent().get(0).getTitle());
+        assertEquals("Robert Martin", result.getContent().get(0).getAuthor());
 
 //        Verify
         verify(bookRepository).findByTitleContainingIgnoreCase(
@@ -289,8 +311,13 @@ public class BookServiceTest {
         request.setSortBy("title");
         request.setDirection("asc");
 
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+
         Page<Book> expectedPage = new PageImpl<>(
-                List.of(new Book())
+                List.of(book)
         );
 
         when(bookRepository.findAll(
@@ -298,14 +325,28 @@ public class BookServiceTest {
         )).thenReturn(expectedPage);
 
 //        Act
-        Page<Book> result = bookService.searchBooks(request);
+        Page<BookResponse> result = bookService.searchBooks(request);
 
 //        Assert
-        assertEquals(expectedPage, result);
+        assertEquals(1L, result.getContent().get(0).getId());
+        assertEquals("Clean Code", result.getContent().get(0).getTitle());
+        assertEquals("Robert Martin", result.getContent().get(0).getAuthor());
 
 //        Verify
         verify(bookRepository).findAll(
                 any(Pageable.class)
+        );
+    }
+
+    @Test
+    void shouldRejectInvalidSortField() {
+
+        BookSearchRequest request = new BookSearchRequest();
+        request.setSortBy("password");
+
+        assertThrows(
+                InvalidSortFieldException.class,
+                () -> bookService.searchBooks(request)
         );
     }
 }

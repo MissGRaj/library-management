@@ -4,6 +4,7 @@ import com.example.library_management.dto.request.BookSearchRequest;
 import com.example.library_management.dto.response.BookResponse;
 import com.example.library_management.entity.Book;
 import com.example.library_management.exception.BookNotFoundException;
+import com.example.library_management.exception.InvalidSortFieldException;
 import com.example.library_management.repository.BookRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,9 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BookService {
+    private static final Set<String> ALLOWED_SORT_FIELDS =
+            Set.of("id", "title", "author");
+
     private final BookRepository bookRepository;
 
     public BookService(BookRepository bookRepository){
@@ -23,9 +28,15 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
-    public List<Book> getBooks(){
+    public List<BookResponse> getBooks(){
 
-        return bookRepository.findAll();
+        return bookRepository.findAll()
+                .stream()
+                .map(book -> new BookResponse(
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor()))
+                .toList();
     }
 
     public BookResponse addBook(BookRequest request){
@@ -84,7 +95,13 @@ public class BookService {
     }
 
 
-    public Page<Book> searchBooks(BookSearchRequest request){
+    public Page<BookResponse> searchBooks(BookSearchRequest request){
+
+        if (!ALLOWED_SORT_FIELDS.contains(request.getSortBy())) {
+            throw new InvalidSortFieldException(
+                    "Invalid sort field: " + request.getSortBy()
+            );
+        }
 
         Sort sort = request.getDirection().equalsIgnoreCase("desc")
                 ? Sort.by(request.getSortBy()).descending()
@@ -95,38 +112,46 @@ public class BookService {
                 request.getSize(),
                 sort);
 
+        Page<Book> books;
+
         if(request.getAuthor() != null && request.getTitle() != null){
-            return bookRepository.findByAuthorAndTitleContainingIgnoreCase(
+            books = bookRepository.findByAuthorAndTitleContainingIgnoreCase(
                             request.getAuthor(),
                             request.getTitle(),
                             pageable);
         }
-
-        if(request.getAuthor() != null) {
-            return bookRepository.findByAuthor(
+        else if(request.getAuthor() != null) {
+            books = bookRepository.findByAuthor(
                     request.getAuthor(),
                     pageable);
         }
-
-        if(request.getTitle() != null) {
-            return bookRepository.findByTitleContainingIgnoreCase(
+        else if(request.getTitle() != null) {
+            books = bookRepository.findByTitleContainingIgnoreCase(
                     request.getTitle(),
                     pageable);
         }
-        return bookRepository.findAll(pageable);
+        else{
+            books = bookRepository.findAll(pageable);
+        }
+
+        return books.map(book -> new BookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor()
+        ));
     }
 
 //    jpql
-    public List<Book> searchBooksByAuthorJPQL(String author){
-        return bookRepository.findBooksByAuthorJPQL(author);
-    }
-
-    public List<Book> searchBooksJPQL(String author, String title){
-        return bookRepository.findBooksJPQL(author, title);
-    }
+//    public List<Book> searchBooksByAuthorJPQL(String author){
+//        return bookRepository.findBooksByAuthorJPQL(author);
+//    }
+//
+//    public List<Book> searchBooksJPQL(String author, String title){
+//        return bookRepository.findBooksJPQL(author, title);
+//    }
 
 //    pagination
-    public Page<Book> searchBooks(Pageable pageable){
-        return bookRepository.findAll(pageable);
-    }
+//    public Page<Book> searchBooks(Pageable pageable){
+//        return bookRepository.findAll(pageable);
+//    }
 }

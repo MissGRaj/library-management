@@ -34,6 +34,8 @@ public class BookController {
         this.bookService = bookService;
     }
 
+
+//    Get All
     @Operation(
             summary = "Get all books",
             description = "Returns a list of all books available in the library."
@@ -42,16 +44,28 @@ public class BookController {
             @ApiResponse(responseCode = "200", description = "Books retrieved successfully")
     })
     @GetMapping("/books")
-    public List<Book> getBooks(){
+    public List<BookResponse> getBooks(){
+
         return bookService.getBooks();
     }
 
+
+
+
+//    Post
     @Operation(
             summary = "Create a new book",
             description = "Add a new book in the library."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Books added successfully"),
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Book added successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid book data"
+            )
     })
     @PostMapping("/books")
     public ResponseEntity<BookResponse> addBook(@Valid @RequestBody BookRequest request){
@@ -60,6 +74,9 @@ public class BookController {
 
     }
 
+
+
+//    Get by ID
     @Operation(
             summary = "Get a book",
             description = "Return a book that matches the ID."
@@ -81,12 +98,26 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
 
+
+
+//    Update
     @Operation(
             summary = "Update an existing book",
             description = "Update an existing book in the library."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Books updated successfully")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Book updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid book data"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Book not found"
+            )
     })
 
     @PutMapping("/books/{id}")
@@ -101,49 +132,70 @@ public class BookController {
         return ResponseEntity.ok(bookService.updateBook(id, bookRequest));
     }
 
+
+
+// Delete
     @Operation(
             summary = "Delete a book",
             description = "Delete a book in the library."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book deleted successfully")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Book deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Book not found"
+            )
     })
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<String> deleteBook(
+    public ResponseEntity<Void> deleteBook(
             @Parameter(
                     description = "Unique ID of the book",
                     example = "5"
             )
             @PathVariable Long id){
         bookService.deleteBook(id);
-        return ResponseEntity.ok().body("Book deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 
+
+
+
+// Search
     @Operation(
             summary = "Search books",
             description = "Returns a paginated list of books with optional sorting."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Books retrieved successfully")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Books retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid search parameters"
+            )
     })
     @GetMapping("/books/search")
-    public ResponseEntity<Page<Book>> searchBooks(
-            @ModelAttribute BookSearchRequest request){
+    public ResponseEntity<Page<BookResponse>> searchBooks(
+            @Valid @ModelAttribute BookSearchRequest request){
 
         return ResponseEntity.ok(bookService.searchBooks(request));
     }
 
 //    jpql endpoints
-    @GetMapping("/books/search/jpql")
-    public ResponseEntity<List<Book>> searchBooksJPQL(@RequestParam String author){
-        return ResponseEntity.ok(bookService.searchBooksByAuthorJPQL(author));
-    }
-
-    @GetMapping("/books/search/jpql1")
-    public ResponseEntity<List<Book>> searchBooksJPQL1(@RequestParam String author,
-                                                       @RequestParam String title){
-        return ResponseEntity.ok(bookService.searchBooksJPQL(author, title));
-    }
+//    @GetMapping("/books/search/jpql")
+//    public ResponseEntity<List<Book>> searchBooksJPQL(@RequestParam String author){
+//        return ResponseEntity.ok(bookService.searchBooksByAuthorJPQL(author));
+//    }
+//
+//    @GetMapping("/books/search/jpql1")
+//    public ResponseEntity<List<Book>> searchBooksJPQL1(@RequestParam String author,
+//                                                       @RequestParam String title){
+//        return ResponseEntity.ok(bookService.searchBooksJPQL(author, title));
+//    }
 
 //    pagination endpoint
 //    @GetMapping("/books_page")

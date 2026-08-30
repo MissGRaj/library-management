@@ -70,18 +70,18 @@ public class BookControllerTest {
     @Test
     void shouldGetAllBooks() throws Exception{
 //        Arrange
-        Book book1 = new Book();
-        book1.setId(1L);
-        book1.setTitle("Clean Code");
-        book1.setAuthor("Robert");
+        BookResponse bookResponse1 = new BookResponse();
+        bookResponse1.setId(1L);
+        bookResponse1.setTitle("Clean Code");
+        bookResponse1.setAuthor("Robert");
 
-        Book book2 = new Book();
-        book2.setId(2L);
-        book2.setTitle("Effective Java");
-        book2.setAuthor("Joshua Bloch");
+        BookResponse bookResponse2 = new BookResponse();
+        bookResponse2.setId(2L);
+        bookResponse2.setTitle("Effective Java");
+        bookResponse2.setAuthor("Joshua Bloch");
 
         when(bookService.getBooks())
-                .thenReturn(List.of(book1, book2));
+                .thenReturn(List.of(bookResponse1, bookResponse2));
 
 //        Act + Assert
         mockMvc.perform(
@@ -164,8 +164,7 @@ public class BookControllerTest {
                 delete("/books/1")
                         .with(user("admin").roles("ADMIN"))
         )
-                .andExpect(status().isOk())
-                .andExpect(content().string("Book deleted successfully"));
+                .andExpect(status().isNoContent());
 
         verify(bookService).deleteBook(1L);
     }
@@ -173,13 +172,13 @@ public class BookControllerTest {
     @Test
     void shouldSearchBooks() throws Exception {
 
-        Book book = new Book();
-        book.setId(1L);
-        book.setTitle("Clean Code");
-        book.setAuthor("Robert Martin");
+        BookResponse bookResponse = new BookResponse();
+        bookResponse.setId(1L);
+        bookResponse.setTitle("Clean Code");
+        bookResponse.setAuthor("Robert Martin");
 
-        Page<Book> page = new PageImpl<>(
-                List.of(book),
+        Page<BookResponse> page = new PageImpl<>(
+                List.of(bookResponse),
                 PageRequest.of(0, 10),
                 1
         );
@@ -240,5 +239,16 @@ public class BookControllerTest {
 
         verify(bookService).getBookById(999L);
     }
+
+    @Test
+    void shouldRejectInvalidPageSize() throws Exception {
+
+        mockMvc.perform(
+                        get("/books/search")
+                                .param("size", "101")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
 
 }
